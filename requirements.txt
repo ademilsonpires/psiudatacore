@@ -1,0 +1,9 @@
+fastapi
+uvicorn
+sqlalchemy
+pymysql
+bcrypt
+jwt
+PyJWT
+requests
+cx_oracle

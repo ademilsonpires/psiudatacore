@@ -5,7 +5,7 @@ from fastapi.security import HTTPBasicCredentials
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 #from pydantic.types import Optional
-from cliente import *  # Importe a classe Cliente do arquivo cliente.py
+from cliente import * # Importe a classe Cliente do arquivo cliente.py
 from user import *
 from conexao_ora import *
 from conexao_mysql import *
@@ -36,7 +36,7 @@ class UserCredentials(BaseModel):
 
 
 
-app = FastAPI(docs_url="/docs", redoc_url="/redoc",title="API | PSIU - Core", description="Esta é uma API que fornece dados dos sistemas Psiu Bebidas.")
+app = FastAPI(docs_url="/docs", redoc_url="/redoc",title="API | PSIU - DataCore", description="Esta é uma API que fornece dados dos sistemas Psiu Bebidas.")
 
 SECRET_KEY = "%_t;*6&!i^kaqn,`~#>tdpp`$bz=ii~15n_(^:0%]i]e6un[]v>&hx)jm^si.8&" #+ datetime()  # Chave secreta para assinar o token
 ALGORITHM = "HS256"  # Algoritmo de criptografia do token
