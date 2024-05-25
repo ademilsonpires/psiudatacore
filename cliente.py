@@ -1,4 +1,3 @@
-
 from conexao_ora import *
 
 def buscarcli(idcliente):

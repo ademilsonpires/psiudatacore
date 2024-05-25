@@ -1,14 +1,12 @@
-from urllib.request import Request
 from fastapi import FastAPI, HTTPException, Depends, APIRouter
-from fastapi.openapi.utils import get_openapi
-from fastapi.security import HTTPBasicCredentials
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
-#from pydantic.types import Optional
+
 from cliente import * # Importe a classe Cliente do arquivo cliente.py
-from user import *
+from models.usuarios.token_acesso import *
+from models.usuarios.usuarios import *
+from models.inadimplencia.inadimplencia import *
 from conexao_ora import *
-from conexao_mysql import *
 
 
 from sqlalchemy import create_engine, Column, Integer, String, text
@@ -29,42 +27,26 @@ import json
 
 from starlette.responses import JSONResponse
 
-SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
-class UserCredentials(BaseModel):
-    username: str
-    password: str
+#SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
+# Classe Pydantic para validar a entrada do usuário
+class NovoUsuario(BaseModel):
+    nome: str
+    senha: str
+    status: str
 
-
+class LoginUsuario(BaseModel):
+    nome: str
+    senha: str
 
 app = FastAPI(docs_url="/docs", redoc_url="/redoc",title="API | PSIU - DataCore", description="Esta é uma API que fornece dados dos sistemas Psiu Bebidas.")
 
-SECRET_KEY = "%_t;*6&!i^kaqn,`~#>tdpp`$bz=ii~15n_(^:0%]i]e6un[]v>&hx)jm^si.8&" #+ datetime()  # Chave secreta para assinar o token
-ALGORITHM = "HS256"  # Algoritmo de criptografia do token
-#ACCESS_TOKEN_EXPIRE_MINUTES = 120  # Tempo de expiração do token (em minutos)
-
 # Função para obter a sessão do banco de dados
-def get_db():
-    db = SessionLocal()
-    try:
-        yield db
-    finally:
-        db.close()
-
-
-
-
-# Função para gerar um token JWT
-def create_access_token(data: dict):# expires_delta: timedelta):
-    # Define a data de expiração do token
-    #expire = datetime.utcnow() + expires_delta
-    # Adiciona a data de expiração ao payload do token
-    #data["exp"] = expire
-    # Gera o token com os dados e a chave secreta
-    token = jwt.encode(data, SECRET_KEY, algorithm=ALGORITHM)
-    # Retorna o token como string
-    return token.decode("utf-8")
-
-
+# def get_db():
+#     db = SessionLocal()
+#     try:
+#         yield db
+#     finally:
+#         db.close()
 
 
 # Configurar as origens permitidas
@@ -82,72 +64,88 @@ app.add_middleware(
 )
 #-----------------------------------------------------------------------------
 
-def salvar_token(db: Session, user: userDB, token: str):
-    db.refresh(user)
 
 
-@app.post("/login", tags=["Login"])
-async def login(credentials: UserCredentials, db: Session = Depends(get_db)):
-    """
-    Login - Autenticação
-    ---
-    Resumo: Autenticação e recuperação de token
+@app.post("/adicionar-usuarios/", tags=["Usuários"])
+async def criar_usuario(usuario: NovoUsuario, token: str = Header(...)):
+    # Verificar se o token está presente no cabeçalho da requisição
+    if not token:
+        raise HTTPException(status_code=401, detail="Token de autenticação ausente")
 
-    Descrição: Realiza login do usuário devolvendo um token de acesso seguro que é atualizado a cada login..
-    ---
-    Descrição:
-       Realiza login do usuário devolvendo um token de acesso seguro que é atualizado a cada login..
+    # Verificar se o token é válido consultando o banco de dados
+    db = UsuarioDB('bd.sqlite3')
+    usuario_stored = db.get_usuario_by_token(token)
+    db.close()
 
-    """
-    username = credentials.username
-    password = credentials.password
+    if not usuario_stored:
+        raise HTTPException(status_code=401, detail="Acesso negado. Token inválido ou usuário inativo")
 
-    # Recupera o usuário do banco de dados com base no nome de usuário fornecido
-    user_bd = db.query(userDB).filter(userDB.login == text("'" + username + "'")).first()
+    # Criptografar a senha antes de inserir no banco de dados
+    senha_criptografada = criptografar_senha(usuario.senha)
 
-    # Verifica se o usuário existe e se a senha fornecida é correta
-    if user_bd is not None and bcrypt.checkpw(password.encode('utf-8'), user_bd.senha.encode('utf-8')):
-        # Login bem-sucedido
-        # Cria o payload do token com os dados do usuário
-        payload = {"user_id": user_bd.id, "login": user_bd.login}
-        # Gera o token com o payload e o tempo de expiração
-        token = jwt.encode(payload, SECRET_KEY, algorithm=ALGORITHM)
-        # Salva ou atualiza o token no banco de dados
-        salvar_token(db, user_bd, token)
-        # Retorna o token como resposta
-        return {"access_token": token, "status": "sucesso"}
-    else:
-        # Credenciais inválidas
-        return {"access_token": "invalido", "status": "negado"}
+    # Criar uma instância do objeto Usuario
+    novo_usuario = Usuario(nome_usuario=usuario.nome, senha=senha_criptografada, token=None, status=usuario.status)
+
+    # Criar uma instância do objeto UsuarioDB e inserir o usuário no banco de dados
+    db = UsuarioDB('bd.sqlite3')
+    usuario_id = db.insert_usuario(novo_usuario)
+    db.close()
+
+    # Retornar o ID do novo usuário criado
+    return {"id": usuario_id}
 
 
-def verificar_token(func):
-    def wrapper(token: str = Header(...), db: Session = Depends(get_db)):
-        user = db.query(userDB).filter(userDB.token == token).first()
 
-        if not user:
-            raise HTTPException(status_code=401, detail="Token inválido")
+# Endpoint de login
+@app.post("/login/", tags=["Usuários"])
+async def login(usuario: LoginUsuario):
+    db = UsuarioDB('bd.sqlite3')
+    usuario_db = db.get_usuario_by_nome_usuario(usuario.nome)
 
-        return func(token, db)
+    if usuario_db is None:
+        db.close()
+        raise HTTPException(status_code=404, detail="Usuário não encontrado")
 
-    return wrapper
+    usuario_stored = Usuario(*usuario_db)
 
+    if not verificar_senha(usuario.senha, usuario_stored.senha):
+        db.close()
+        raise HTTPException(status_code=401, detail="Senha incorreta")
 
-#
-# @app.post("/adduser/", tags=["Usuários"])
-# def add_usuario(user: user):
-#
-#
-#     if not user:
-#         #credencial inválida
-#         raise HTTPException(status_code=401, detail="Token inválido")
-#     else:
-#         # Credenciais ok
-#         return add_user(user)
-#
+    if not usuario_stored.token:
+        token = gerar_token(usuario_stored.nome_usuario, usuario.senha)
+        db.update_usuario_campo(usuario_stored.id, 'token', token)
+        usuario_stored.token = token
+        db.close()
 
-@app.get("/buscacliente/{id_cliente}")
-def buscacliente(id_cliente: int):
-    return buscarcli(id_cliente)
+    db.close()
+
+    return {"token": usuario_stored.token}
+
+# @app.get("/buscacliente/{id_cliente}")
+# def buscacliente(id_cliente: int):
+#     return buscarcli(id_cliente)
+
+@app.get("/busca-inadimplencia/", tags=["Inadimplencia"])
+async def inadimplencia(token: str = Header(...)):
+    # Verificar se o token está presente no cabeçalho da requisição
+    if not token:
+        raise HTTPException(status_code=401, detail="Token de autenticação ausente")
+
+    # Verificar se o token é válido consultando o banco de dados
+    db = UsuarioDB('bd.sqlite3')
+    usuario_stored = db.get_usuario_by_token(token)
+    db.close()
+
+    if not usuario_stored:
+        raise HTTPException(status_code=401, detail="Acesso negado. Token inválido ou usuário inativo")
+
+    resultado_json = busca_inadimplencia()
+
+    # Deserializando a string JSON de volta para um objeto Python
+    resultado_objeto = json.loads(resultado_json)
+    # Retornar a consulta
+    return resultado_objeto
+
 
 
