@@ -6,6 +6,7 @@ from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 from starlette.requests import Request
 from fastapi.responses import HTMLResponse
+from conexao_ora import *
 
 
 
@@ -66,7 +67,7 @@ async def read_root(request: Request):
 
 
 
-@app.post("/adicionar-usuarios/", tags=["Usuários"])
+@app.post("/adicionar-usuarios/", tags=["Usuários"], include_in_schema=False)
 async def criar_usuario(usuario: NovoUsuario, token: str = Header(...)):
     # Verificar se o token está presente no cabeçalho da requisição
     if not token:
@@ -95,7 +96,7 @@ async def criar_usuario(usuario: NovoUsuario, token: str = Header(...)):
     return {"id": usuario_id}
 
 
-@app.get("/usuarios/", tags=["Usuários"])
+@app.get("/usuarios/", tags=["Usuários"], include_in_schema=False)
 async def listar_usuarios(token: str = Header(...), usuario_id: Optional[int] = None):
     # Verificar se o token está presente no cabeçalho da requisição
     if not token:
@@ -119,7 +120,7 @@ async def listar_usuarios(token: str = Header(...), usuario_id: Optional[int] = 
     return usuarios
 
 
-@app.delete("/deletar-usuarios/{usuario_id}", tags=["Usuários"])
+@app.delete("/deletar-usuarios/{usuario_id}", tags=["Usuários"], include_in_schema=False)
 async def excluir_usuario(usuario_id: int, token: str = Header(...)):
     # Verificar se o token está presente no cabeçalho da requisição
     if not token:
