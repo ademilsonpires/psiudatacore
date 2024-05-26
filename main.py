@@ -59,7 +59,7 @@ app.mount("/static", StaticFiles(directory="static"), name="static")
 # Configurar templates
 templates = Jinja2Templates(directory="templates")
 
-@app.get("/", response_class=HTMLResponse)
+@app.get("/", response_class=HTMLResponse, include_in_schema=False)
 async def read_root(request: Request):
     return templates.TemplateResponse("index.html", {"request": request})
 
@@ -103,7 +103,7 @@ async def listar_usuarios(token: str = Header(...), usuario_id: Optional[int] = 
 
     # Verificar se o token é válido consultando o banco de dados
     db = UsuarioDB('bd.sqlite3')
-    usuario_stored = db.get_usuario_by_token(token)
+    usuario_stored = db.get_usuario_by_token(token.strip())
 
     if not usuario_stored:
         db.close()
