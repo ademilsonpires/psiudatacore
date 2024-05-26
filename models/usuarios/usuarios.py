@@ -30,9 +30,15 @@ class UsuarioDB:
         self.conn.commit()
         return self.c.lastrowid
 
-    def get_usuario_by_id(self, usuario_id):
-        self.c.execute('''SELECT * FROM usuarios WHERE id = ?''', (usuario_id,))
-        return self.c.fetchone()
+    # def get_usuario_by_id(self, usuario_id):
+    #     self.c.execute('''SELECT * FROM usuarios WHERE id = ?''', (usuario_id,))
+    #     return self.c.fetchone()
+    def get_usuarios(self, usuario_id=None):
+        if usuario_id:
+            self.c.execute('''SELECT * FROM usuarios WHERE id = ?''', (usuario_id,))
+        else:
+            self.c.execute('''SELECT * FROM usuarios''')
+        return self.c.fetchall() if not usuario_id else self.c.fetchone()
 
     def get_usuario_by_nome_usuario(self, nome_usuario):
         self.c.execute('''SELECT * FROM usuarios WHERE nome_usuario = ?''', (nome_usuario,))

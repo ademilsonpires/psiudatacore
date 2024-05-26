@@ -1,23 +1,20 @@
 from fastapi import FastAPI, HTTPException, Depends, APIRouter
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
+from typing import Optional
+from fastapi.staticfiles import StaticFiles
+from fastapi.templating import Jinja2Templates
+from starlette.requests import Request
+from fastapi.responses import HTMLResponse
 
-from cliente import * # Importe a classe Cliente do arquivo cliente.py
+
+
 from models.usuarios.token_acesso import *
 from models.usuarios.usuarios import *
 from models.inadimplencia.inadimplencia import *
-from conexao_ora import *
 
-
-from sqlalchemy import create_engine, Column, Integer, String, text
-from sqlalchemy.exc import SQLAlchemyError
-from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy.orm import sessionmaker, Session, session
 from fastapi import Depends, Header
-from sqlalchemy.orm import mapper
 
-import jwt
-from datetime import datetime, timedelta
 import bcrypt
 
 # Geração do salt (valor aleatório usado na criptografia)
@@ -25,9 +22,7 @@ salt = bcrypt.gensalt()
 
 import json
 
-from starlette.responses import JSONResponse
 
-#SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 # Classe Pydantic para validar a entrada do usuário
 class NovoUsuario(BaseModel):
     nome: str
@@ -40,13 +35,7 @@ class LoginUsuario(BaseModel):
 
 app = FastAPI(docs_url="/docs", redoc_url="/redoc",title="API | PSIU - DataCore", description="Esta é uma API que fornece dados dos sistemas Psiu Bebidas.")
 
-# Função para obter a sessão do banco de dados
-# def get_db():
-#     db = SessionLocal()
-#     try:
-#         yield db
-#     finally:
-#         db.close()
+
 
 
 # Configurar as origens permitidas
@@ -63,6 +52,17 @@ app.add_middleware(
     allow_headers=["*"],
 )
 #-----------------------------------------------------------------------------
+
+# Montar diretório de arquivos estáticos
+app.mount("/static", StaticFiles(directory="static"), name="static")
+
+# Configurar templates
+templates = Jinja2Templates(directory="templates")
+
+@app.get("/", response_class=HTMLResponse)
+async def read_root(request: Request):
+    return templates.TemplateResponse("index.html", {"request": request})
+
 
 
 
@@ -95,7 +95,55 @@ async def criar_usuario(usuario: NovoUsuario, token: str = Header(...)):
     return {"id": usuario_id}
 
 
+@app.get("/usuarios/", tags=["Usuários"])
+async def listar_usuarios(token: str = Header(...), usuario_id: Optional[int] = None):
+    # Verificar se o token está presente no cabeçalho da requisição
+    if not token:
+        raise HTTPException(status_code=401, detail="Token de autenticação ausente")
 
+    # Verificar se o token é válido consultando o banco de dados
+    db = UsuarioDB('bd.sqlite3')
+    usuario_stored = db.get_usuario_by_token(token)
+
+    if not usuario_stored:
+        db.close()
+        raise HTTPException(status_code=401, detail="Acesso negado. Token inválido ou usuário inativo")
+
+    # Obter usuário(s)
+    usuarios = db.get_usuarios(usuario_id)
+    db.close()
+
+    if not usuarios:
+        raise HTTPException(status_code=404, detail="Usuário(s) não encontrado(s)")
+
+    return usuarios
+
+
+@app.delete("/deletar-usuarios/{usuario_id}", tags=["Usuários"])
+async def excluir_usuario(usuario_id: int, token: str = Header(...)):
+    # Verificar se o token está presente no cabeçalho da requisição
+    if not token:
+        raise HTTPException(status_code=401, detail="Token de autenticação ausente")
+
+    # Verificar se o token é válido consultando o banco de dados
+    db = UsuarioDB('bd.sqlite3')
+    usuario_stored = db.get_usuario_by_token(token)
+
+    if not usuario_stored:
+        db.close()
+        raise HTTPException(status_code=401, detail="Acesso negado. Token inválido ou usuário inativo")
+
+    # Verificar se o usuário a ser excluído existe
+    usuario = db.get_usuarios(usuario_id)
+    if not usuario:
+        db.close()
+        raise HTTPException(status_code=404, detail="Usuário não encontrado")
+
+    # Excluir o usuário
+    db.delete_usuario(usuario_id)
+    db.close()
+
+    return {"detail": "Usuário excluído com sucesso"}
 # Endpoint de login
 @app.post("/login/", tags=["Usuários"])
 async def login(usuario: LoginUsuario):
