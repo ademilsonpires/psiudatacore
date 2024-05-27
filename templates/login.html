@@ -117,6 +117,7 @@
                 // Enviar a solicitação POST para o endpoint de login
                 $.ajax({
                     url: 'https://api.psiu.ind.br/logar-api/',
+                    //url: 'http://127.0.0.1:8000/logar-api/',
                     type: 'POST',
                     contentType: 'application/json',
                     data: JSON.stringify({
@@ -127,14 +128,14 @@
                         // Verificar se a resposta contém um token
                         if (response.token && username !== 'solute') {
                         //limpar token
-                        clearToken();
+                        //clearToken();
                         // Armazenar o token no localStorage
                         storeToken(response.token);
                             // Redirecionar para a página após o login
                         window.location.href = '/filtrar-analise-mp';
                         } else {
                                     //limpar token
-                                    clearToken();
+                                    //clearToken();
                                      // Exibir mensagem de erro
                                      Toast.fire({
                                         icon: 'error',
