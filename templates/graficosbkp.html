@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+  <meta charset="utf-8">
+  <meta content="width=device-width, initial-scale=1.0" name="viewport">
+
+  <title>Psiu DataCore - API</title>
+  <meta content="" name="description">
+  <meta content="" name="keywords">
+
+  <!-- Favicons -->
+  <link href="static/img/favicon.png" rel="icon">
+  <link href="static/img/apple-touch-icon.png" rel="apple-touch-icon">
+
+  <!-- Google Fonts -->
+  <link href="https://fonts.googleapis.com/css?family=Open+Sans:300,300i,400,400i,600,600i,700,700i|Raleway:300,300i,400,400i,500,500i,600,600i,700,700i|Poppins:300,300i,400,400i,500,500i,600,600i,700,700i"
+    rel="stylesheet">
+
+  <!-- Vendor CSS Files -->
+  <link href="static/vendor/aos/aos.css" rel="stylesheet">
+  <link href="static/vendor/bootstrap/css/bootstrap.min.css" rel="stylesheet">
+  <link href="static/vendor/bootstrap-icons/bootstrap-icons.css" rel="stylesheet">
+  <link href="static/vendor/boxicons/css/boxicons.min.css" rel="stylesheet">
+  <link href="static/vendor/glightbox/css/glightbox.min.css" rel="stylesheet">
+  <link href="static/vendor/swiper/swiper-bundle.min.css" rel="stylesheet">
+
+  <!-- jQuery -->
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+
+  <!-- Chart.js -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+  <!-- Seu script -->
+  <script src="static/js/main.js"></script>
+
+  <!-- Template Main CSS File -->
+  <link href="static/css/style.css" rel="stylesheet">
+
+ <style>
+  /* Estilos do Spinner */
+  .spinner {
+
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    text-align: center;
+    z-index: 9999;
+  }
+
+  .spinner-animation {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    border: 4px solid #333;
+    border-top: 4px solid transparent;
+    border-bottom: 4px solid transparent;
+    animation: spin 1s linear infinite;
+  }
+
+  @keyframes spin {
+    0% {
+      transform: rotate(0deg);
+    }
+
+    100% {
+      transform: rotate(360deg);
+    }
+  }
+
+  .spinner-text {
+    margin-top: 10px;
+    color: #333;
+  }
+</style>
+
+</head>
+
+<body>
+
+  <!-- Spinner -->
+  <div class="spinner">
+    <div class="spinner-animation"></div>
+    <div class="spinner-text">Carregando dados...</div>
+  </div>
+
+  <!-- ======= Header ======= -->
+  <header id="header" class="fixed-top d-flex align-items-center">
+    <div class="container d-flex align-items-center">
+      <div class="logo me-auto">
+        <h1><a href="index.html">Psiu - DataCore</a></h1>
+      </div>
+      <nav id="navbar" class="navbar order-last order-lg-0">
+        <i class="bi bi-list mobile-nav-toggle"></i>
+      </nav><!-- .navbar -->
+      <div class="header-social-links d-flex align-items-center">
+        <a href="#" class="twitter"><i class="bi bi-twitter"></i></a>
+        <a href="#" class="facebook"><i class="bi bi-facebook"></i></a>
+        <a href="#" class="instagram"><i class="bi bi-instagram"></i></a>
+        <a href="#" class="linkedin"><i class="bi bi-linkedin"></i></i></a>
+      </div>
+    </div>
+  </header><!-- End Header -->
+
+  <!-- ======= Hero Section ======= -->
+  <section id="hero">
+    <div class="container">
+      <div class="row">
+        <div class="col-lg-12">
+          <canvas id="myChart"></canvas>
+        </div>
+      </div>
+    </div>
+  </section><!-- End Hero -->
+
+  <!-- ======= Footer ======= -->
+  <footer id="footer">
+    <div class="container">
+      <div class="copyright">
+        &copy; Copyright <strong><span>Psiu Bebidas</span></strong>. All Rights Reserved
+      </div>
+      <div class="credits">
+        Designed by <a href="https://psiubebidas.com.br/">Dep. de Tecnologia e Inovação</a>
+      </div>
+    </div>
+  </footer><!-- End Footer -->
+
+  <a href="#" class="back-to-top d-flex align-items-center justify-content-center"><i class="bi bi-arrow-up-short"></i></a>
+
+  <!-- Vendor JS Files -->
+  <script src="static/vendor/aos/aos.js"></script>
+  <script src="static/vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
+  <script src="static/vendor/glightbox/js/glightbox.min.js"></script>
+  <script src="static/vendor/isotope-layout/isotope.pkgd.min.js"></script>
+  <script src="static/vendor/swiper/swiper-bundle.min.js"></script>
+  <script src="static/vendor/php-email-form/validate.js"></script>
+
+  <!-- Template Main JS File -->
+  <script src="static/js/main.js"></script>
+
+  <!-- Chart Script -->
+<script>
+  $(document).ready(function () {
+  $.ajax({
+    url: 'http://127.0.0.1:8000/busca-custos-mp/',
+    type: 'GET',
+    headers: {
+      'accept': 'application/json',
+      'token': 'IgmKo7f-jyAQmBlzcUJ4QVspNx6C9HYcBV73Z5IPsEM='
+    },
+    beforeSend: function () {
+      $('.spinner').show(); // Mostrar o spinner antes da requisição AJAX
+    },
+    success: function (data) {
+      $('.spinner').hide(); // Esconder o spinner após receber os dados da API
+
+      // Processar os dados da API
+      var datasets = {};
+      data.forEach(function (item) {
+        var subgrupo = item.SUBGRUPO_DESCRICAO;
+        if (!datasets[subgrupo]) {
+          datasets[subgrupo] = {
+            label: subgrupo,
+            data: [],
+            fill: false,
+            borderColor: '#' + (Math.random().toString(16) + '000000').substring(2, 8),
+            tension: 0.1
+          };
+        }
+        datasets[subgrupo].data.push(item.CUSTO_MEDIO);
+      });
+
+      // Construir o gráfico com os dados processados
+      var labels = data.map(function (item) { return item.DATA_MOV; });
+      var ctx = document.getElementById('myChart').getContext('2d');
+      var myChart = new Chart(ctx, {
+        type: 'line',
+        data: {
+          labels: labels,
+          datasets: Object.values(datasets)
+        },
+        options: {
+          scales: {
+            y: {
+              beginAtZero: true
+            }
+          },
+          plugins: {
+            tooltip: {
+              callbacks: {
+                label: function(context) {
+                  var label = context.dataset.label || '';
+                  if (label) {
+                    label += ': ';
+                  }
+                  if (context.parsed.y !== null) {
+                    label += new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(context.parsed.y);
+                  }
+                  return label;
+                }
+              }
+            }
+          }
+        }
+      });
+    },
+    error: function (xhr, status, error) {
+      $('.spinner').hide(); // Esconder o spinner em caso de erro
+      console.error(xhr.responseText); // Imprimir o erro no console do navegador
+    }
+  });
+});
+
+</script>
+
+</body>
+
+</html>

@@ -3,6 +3,8 @@ import json
 
 def busca_inadimplencia():
     try:
+        #crie a conexão
+        conn = cx_Oracle.connect(user=userOra, password=password, dsn=dsn)
 
         # Crie um cursor para executar a consulta
         cursor = conn.cursor()
