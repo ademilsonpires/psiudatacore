@@ -17,6 +17,9 @@
     <link rel="stylesheet" href="./static/dist/css/adminlte.min.css">
       <!-- SweetAlert2 -->
     <link rel="stylesheet" href="./static/plugins/sweetalert2-theme-bootstrap-4/bootstrap-4.min.css">
+    <!--  api root  -->
+    <script src="./static/js/api-rootV1.js"></script>
+
 </head>
 
 <body class="hold-transition login-page">
@@ -116,8 +119,7 @@
 
                 // Enviar a solicitação POST para o endpoint de login
                 $.ajax({
-                    url: 'https://api.psiu.ind.br/logar-api/',
-                    //url: 'http://127.0.0.1:8000/logar-api/',
+                    url: 'logar-api/',
                     type: 'POST',
                     contentType: 'application/json',
                     data: JSON.stringify({
@@ -137,6 +139,7 @@
                                     //limpar token
                                     //clearToken();
                                      // Exibir mensagem de erro
+                                      console.log(url);
                                      Toast.fire({
                                         icon: 'error',
                                         title: 'Dados incorretos ou não autorizado, acione o suporte.'
@@ -146,6 +149,7 @@
                     error: function (xhr, status, error) {
                         // Exibir mensagem de erro usando o swictalert2 q já esta no na página
                         //alert('Ocorreu um erro ao fazer login. Por favor, tente novamente.');
+                        console.log(url);
                               Toast.fire({
                                         icon: 'error',
                                         title: 'Erro no login ou dados incorretos, acione o suporte.'

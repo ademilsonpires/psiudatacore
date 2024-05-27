@@ -34,6 +34,7 @@
 
   <!-- Seu script -->
   <script src="static/js/main.js"></script>
+  <script src="static/js/api-rootV1.js"></script>
 
   <!-- Template Main CSS File -->
   <link href="static/css/style.css" rel="stylesheet">
@@ -118,7 +119,7 @@
 
         // Perform AJAX request with parameters
         $.ajax({
-            url: 'https://api.psiu.ind.br/busca-custos-mp/',
+            url: 'busca-custos-mp/',
             type: 'GET', // Assuming the endpoint is a GET request
             headers: {
                 'accept': 'application/json',

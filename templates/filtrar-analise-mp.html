@@ -37,6 +37,8 @@
   <!-- Select2 -->
   <link rel="stylesheet" href="./static/plugins/select2/css/select2.min.css">
   <link rel="stylesheet" href="./static/plugins/select2-bootstrap4-theme/select2-bootstrap4.min.css">
+  <script src="static/js/api-rootV1.js"></script>
+
 
 </head>
 
@@ -142,7 +144,7 @@
 
     // Requisição GET para obter os dados dos produtos
     $.ajax({
-      url: 'https://api.psiu.ind.br/busca-produtos-custos-mp/',
+      url: 'busca-produtos-custos-mp/',
       type: 'GET',
       headers: {
         'Accept': 'application/json',

@@ -83,7 +83,7 @@ async def read_root(request: Request):
 
 
 
-@app.post("/adicionar-usuarios/", tags=["Usuários"])
+@app.post("/adicionar-usuarios/", tags=["Usuários"], include_in_schema=False)
 async def criar_usuario(usuario: NovoUsuario, token: str = Header(...)):
     # Verificar se o token está presente no cabeçalho da requisição
     if not token:
