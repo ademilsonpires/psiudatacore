@@ -68,9 +68,9 @@ templates = Jinja2Templates(directory="templates")
 async def read_root(request: Request):
     return templates.TemplateResponse("index.html", {"request": request})
 
-# @app.get("/graficos", response_class=HTMLResponse, include_in_schema=False)
-# async def read_root(request: Request):
-#     return templates.TemplateResponse("graficos.html", {"request": request})
+@app.get("/login", response_class=HTMLResponse, include_in_schema=False)
+async def read_root(request: Request):
+    return templates.TemplateResponse("login.html", {"request": request})
 
 
 @app.get("/graficos", response_class=HTMLResponse, include_in_schema=False)
@@ -83,7 +83,7 @@ async def read_root(request: Request):
 
 
 
-@app.post("/adicionar-usuarios/", tags=["Usuários"], include_in_schema=False)
+@app.post("/adicionar-usuarios/", tags=["Usuários"])
 async def criar_usuario(usuario: NovoUsuario, token: str = Header(...)):
     # Verificar se o token está presente no cabeçalho da requisição
     if not token:
@@ -162,7 +162,7 @@ async def excluir_usuario(usuario_id: int, token: str = Header(...)):
 
     return {"detail": "Usuário excluído com sucesso"}
 # Endpoint de login
-@app.post("/login/", tags=["Usuários"])
+@app.post("/logar-api/", tags=["Usuários"])
 async def login(usuario: LoginUsuario):
     db = UsuarioDB('bd.sqlite3')
     usuario_db = db.get_usuario_by_nome_usuario(usuario.nome)

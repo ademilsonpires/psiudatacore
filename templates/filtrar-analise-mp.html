@@ -15,8 +15,8 @@
 
   <!-- Google Fonts -->
   <link
-    href="https://fonts.googleapis.com/css?family=Open+Sans:300,300i,400,400i,600,600i,700,700i|Raleway:300,300i,400,400i,500,500i,600,600i,700,700i|Poppins:300,300i,400,400i,500,500i,600,600i,700,700i"
-    rel="stylesheet">
+          href="https://fonts.googleapis.com/css?family=Open+Sans:300,300i,400,400i,600,600i,700,700i|Raleway:300,300i,400,400i,500,500i,600,600i,700,700i|Poppins:300,300i,400,400i,500,500i,600,600i,700,700i"
+          rel="stylesheet">
 
   <!-- Vendor CSS Files -->
   <link href="static/vendor/aos/aos.css" rel="stylesheet">
@@ -42,145 +42,150 @@
 
 <body>
 
-  <!-- ======= Header ======= -->
-  <header id="header" class="fixed-top d-flex align-items-center">
-    <div class="container d-flex align-items-center">
+<!-- ======= Header ======= -->
+<header id="header" class="fixed-top d-flex align-items-center">
+  <div class="container d-flex align-items-center">
 
-      <div class="logo me-auto">
-        <h1><a href="index.html">Psiu - DataCore</a></h1>
-        <!-- Uncomment below if you prefer to use an image logo -->
-
-      </div>
-
-      <nav id="navbar" class="navbar order-last order-lg-0">
-
-        <i class="bi bi-list mobile-nav-toggle"></i>
-      </nav><!-- .navbar -->
-
-      <div class="header-social-links d-flex align-items-center">
-        <a href="#" class="twitter"><i class="bi bi-twitter"></i></a>
-        <a href="#" class="facebook"><i class="bi bi-facebook"></i></a>
-        <a href="#" class="instagram"><i class="bi bi-instagram"></i></a>
-        <a href="#" class="linkedin"><i class="bi bi-linkedin"></i></i></a>
-      </div>
+    <div class="logo me-auto">
+      <h1><a href="index.html">Psiu - DataCore</a></h1>
+      <!-- Uncomment below if you prefer to use an image logo -->
 
     </div>
-  </header><!-- End Header -->
 
-  <!-- ======= Hero Section ======= -->
-  <section id="hero">
-    <div class="container">
-      <div class="row">
-        <div class="col-lg-6 pt-5 pt-lg-0 order-2 order-lg-1 d-flex flex-column justify-content-center"
-          data-aos="fade-up">
+    <nav id="navbar" class="navbar order-last order-lg-0">
 
-          <h3>Filtragem de Dados</h3>
+      <i class="bi bi-list mobile-nav-toggle"></i>
+    </nav><!-- .navbar -->
 
-         <form id="filterForm" onsubmit="return redirectToGraficos()">
-    <div class="mb-3">
-        <label for="products" class="form-label">Matéria Prima:</label>
-        <select class="form-control select2" data-placeholder="Selecione os produtos" multiple
-                style="width: 100%;" id="products" name="products">
-        </select>
+    <div class="header-social-links d-flex align-items-center">
+      <a href="#" class="twitter"><i class="bi bi-twitter"></i></a>
+      <a href="#" class="facebook"><i class="bi bi-facebook"></i></a>
+      <a href="#" class="instagram"><i class="bi bi-instagram"></i></a>
+      <a href="#" class="linkedin"><i class="bi bi-linkedin"></i></i></a>
     </div>
-    <div class="mb-3">
-        <label for="startDate" class="form-label">Data Inicial:</label>
-        <input type="date" class="form-control" id="startDate" name="startDate">
-    </div>
-    <div class="mb-3">
-        <label for="endDate" class="form-label">Data Final:</label>
-        <input type="date" class="form-control" id="endDate" name="endDate">
-    </div>
-    <button type="submit" class="btn btn-primary">Analisar</button>
-</form>
-        </div>
-      </div>
-    </div>
-  </section><!-- End Hero -->
 
-  <!-- ======= Footer ======= -->
-  <footer id="footer">
-    <div class="container">
-      <div class="copyright">
-        &copy; Copyright <strong><span>Psiu Bebidas</span></strong>. All Rights Reserved
-      </div>
-      <div class="credits">
-        Designed by <a href="https://psiubebidas.com.br/">Dep. de Tecnologia e Inovação</a>
+  </div>
+</header><!-- End Header -->
+
+<!-- ======= Hero Section ======= -->
+<section id="hero">
+  <div class="container">
+    <div class="row">
+      <div class="col-lg-6 pt-5 pt-lg-0 order-2 order-lg-1 d-flex flex-column justify-content-center"
+           data-aos="fade-up">
+
+        <h3>Filtragem de Dados</h3>
+
+        <form id="filterForm" onsubmit="return redirectToGraficos()">
+          <div class="mb-3">
+            <label for="products" class="form-label">Matéria Prima:</label>
+            <select class="form-control select2" data-placeholder="Selecione os produtos" multiple
+                    style="width: 100%;" id="products" name="products">
+            </select>
+          </div>
+          <div class="mb-3">
+            <label for="startDate" class="form-label">Data Inicial:</label>
+            <input type="date" class="form-control" id="startDate" name="startDate">
+          </div>
+          <div class="mb-3">
+            <label for="endDate" class="form-label">Data Final:</label>
+            <input type="date" class="form-control" id="endDate" name="endDate">
+          </div>
+          <button type="submit" class="btn btn-primary">Analisar</button>
+        </form>
       </div>
     </div>
-  </footer><!-- End Footer -->
+  </div>
+</section><!-- End Hero -->
 
-  <a href="#" class="back-to-top d-flex align-items-center justify-content-center"><i
-      class="bi bi-arrow-up-short"></i></a>
+<!-- ======= Footer ======= -->
+<footer id="footer">
+  <div class="container">
+    <div class="copyright">
+      &copy; Copyright <strong><span>Psiu Bebidas</span></strong>. All Rights Reserved
+    </div>
+    <div class="credits">
+      Designed by <a href="https://psiubebidas.com.br/">Dep. de Tecnologia e Inovação</a>
+    </div>
+  </div>
+</footer><!-- End Footer -->
 
-  <!-- Vendor JS Files -->
-  <script src="static/vendor/aos/aos.js"></script>
-  <script src="static/vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
-  <script src="static/vendor/glightbox/js/glightbox.min.js"></script>
-  <script src="static/vendor/isotope-layout/isotope.pkgd.min.js"></script>
-  <script src="static/vendor/swiper/swiper-bundle.min.js"></script>
-  <script src="static/vendor/php-email-form/validate.js"></script>
+<a href="#" class="back-to-top d-flex align-items-center justify-content-center"><i
+        class="bi bi-arrow-up-short"></i></a>
 
-  <!-- Bootstrap 4 -->
-  <script src="./static/plugins/bootstrap/js/bootstrap.bundle.min.js"></script>
-  <!-- Select2 -->
-  <script src="./static/plugins/select2/js/select2.full.min.js"></script>
+<!-- Vendor JS Files -->
+<script src="static/vendor/aos/aos.js"></script>
+<script src="static/vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
+<script src="static/vendor/glightbox/js/glightbox.min.js"></script>
+<script src="static/vendor/isotope-layout/isotope.pkgd.min.js"></script>
+<script src="static/vendor/swiper/swiper-bundle.min.js"></script>
+<script src="static/vendor/php-email-form/validate.js"></script>
 
-  <!-- Template Main JS File -->
-  <script src="static/js/main.js"></script>
-  <script>
-    $(document).ready(function() {
-      // Inicialize Select2
-      $('.select2').select2({
-        theme: 'bootstrap4'
-      });
+<!-- Bootstrap 4 -->
+<script src="./static/plugins/bootstrap/js/bootstrap.bundle.min.js"></script>
+<!-- Select2 -->
+<script src="./static/plugins/select2/js/select2.full.min.js"></script>
 
-      // Requisição GET para obter os dados dos produtos
-      $.ajax({
-        url: 'https://api.psiu.ind.br/busca-produtos-custos-mp/',
-        type: 'GET',
-        headers: {
-          'Accept': 'application/json',
-          'token': 'IgmKo7f-jyAQmBlzcUJ4QVspNx6C9HYcBV73Z5IPsEM='
-        },
-        success: function(response) {
-          // Limpar o Select2
-          $('#products').empty();
-
-          // Adicionar cada opção ao Select2
-          response.forEach(function(produto) {
-            $('#products').append('<option value="' + produto.CODIGO + '">' + produto.MATERIA_PRIMA + '</option>');
-          });
-
-          // Atualizar o Select2 após adicionar todas as opções
-          $('#products').select2();
-        },
-        error: function(xhr, status, error) {
-          console.error('Erro ao obter os dados dos produtos:', error);
-        }
-      });
+<!-- Template Main JS File -->
+<script src="static/js/main.js"></script>
+<script>
+  $(document).ready(function() {
+    // Função para recuperar o token
+    function getToken() {
+       return localStorage.getItem('authToken');
+    }
+    var token = getToken();
+    // Inicialize Select2
+    $('.select2').select2({
+      theme: 'bootstrap4'
     });
-  </script>
+
+    // Requisição GET para obter os dados dos produtos
+    $.ajax({
+      url: 'https://api.psiu.ind.br/busca-produtos-custos-mp/',
+      type: 'GET',
+      headers: {
+        'Accept': 'application/json',
+        'token': token
+      },
+      success: function(response) {
+        // Limpar o Select2
+        $('#products').empty();
+
+        // Adicionar cada opção ao Select2
+        response.forEach(function(produto) {
+          $('#products').append('<option value="' + produto.CODIGO + '">' + produto.MATERIA_PRIMA + '</option>');
+        });
+
+        // Atualizar o Select2 após adicionar todas as opções
+        $('#products').select2();
+      },
+      error: function(xhr, status, error) {
+        console.error('Erro ao obter os dados dos produtos:', error);
+      }
+    });
+  });
+</script>
 
 <script>
-function redirectToGraficos() {
-    const products = Array.from(document.getElementById('products').selectedOptions).map(option => option.value).join(',');
-    const startDate = document.getElementById('startDate').value;
-    const endDate = document.getElementById('endDate').value;
+  function redirectToGraficos() {
+      const products = Array.from(document.getElementById('products').selectedOptions).map(option => option.value).join(',');
+      const startDate = document.getElementById('startDate').value;
+      const endDate = document.getElementById('endDate').value;
 
-    // Function to convert date format from YYYY-MM-DD to DD/MM/YYYY
-    function convertDateFormat(date) {
-        const [year, month, day] = date.split('-');
-        return `${day}/${month}/${year}`;
-    }
+      // Function to convert date format from YYYY-MM-DD to DD/MM/YYYY
+      function convertDateFormat(date) {
+          const [year, month, day] = date.split('-');
+          return `${day}/${month}/${year}`;
+      }
 
-    const formattedStartDate = convertDateFormat(startDate);
-    const formattedEndDate = convertDateFormat(endDate);
+      const formattedStartDate = convertDateFormat(startDate);
+      const formattedEndDate = convertDateFormat(endDate);
 
-    const url = `/graficos?products=${encodeURIComponent(products)}&startDate=${encodeURIComponent(formattedStartDate)}&endDate=${encodeURIComponent(formattedEndDate)}`;
-    window.location.href = url;
-    return false;
-}
+      const url = `/graficos?products=${encodeURIComponent(products)}&startDate=${encodeURIComponent(formattedStartDate)}&endDate=${encodeURIComponent(formattedEndDate)}`;
+      window.location.href = url;
+      return false;
+  }
 </script>
 </body>
 
