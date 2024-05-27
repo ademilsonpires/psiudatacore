@@ -105,6 +105,11 @@
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>
     $(document).ready(function () {
+        // Função para recuperar o token
+    function getToken() {
+       return localStorage.getItem('authToken');
+    }
+    var token = getToken();
         // Get parameters from URL
         const params = new URLSearchParams(window.location.search);
         const products = params.get('products');
@@ -117,7 +122,7 @@
             type: 'GET', // Assuming the endpoint is a GET request
             headers: {
                 'accept': 'application/json',
-                'token': 'IgmKo7f-jyAQmBlzcUJ4QVspNx6C9HYcBV73Z5IPsEM='
+                'token': token
             },
             data: {
                 codigos_produto: products,
