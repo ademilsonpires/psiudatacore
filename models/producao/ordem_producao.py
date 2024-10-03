@@ -706,4 +706,4 @@ def calcular_gap_produto_ordem_id(id_produto=None, id_linha=None, quantidade_pro
 # resultado = calcular_gap_produto_ordem_id(id_produto=50, id_linha=4, quantidade_produzida=550)
 # print(resultado)
 # Saída: {"gap": 50}
-print(busca_ordem_id(29965))
+# print(busca_ordem_id(29965))
