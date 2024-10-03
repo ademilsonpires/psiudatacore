@@ -1,0 +1,417 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta content="width=device-width, initial-scale=1.0" name="viewport">
+
+  <title>Psiu DataCore - API</title>
+  <meta content="" name="description">
+  <meta content="" name="keywords">
+
+  <!-- Favicons -->
+  <link href="static/img/favicon.png" rel="icon">
+  <link href="static/img/apple-touch-icon.png" rel="apple-touch-icon">
+
+  <!-- Google Fonts -->
+  <link href="https://fonts.googleapis.com/css?family=Open+Sans:300,300i,400,400i,600,600i,700,700i|Raleway:300,300i,400,400i,500,500i,600,600i,700,700i"
+    rel="stylesheet">
+
+  <!-- Vendor CSS Files -->
+  <link href="static/vendor/aos/aos.css" rel="stylesheet">
+  <link href="static/vendor/bootstrap/css/bootstrap.min.css" rel="stylesheet">
+  <link href="static/vendor/bootstrap-icons/bootstrap-icons.css" rel="stylesheet">
+  <link href="static/vendor/boxicons/css/boxicons.min.css" rel="stylesheet">
+  <link href="static/vendor/glightbox/css/glightbox.min.css" rel="stylesheet">
+  <link href="static/vendor/swiper/swiper-bundle.min.css" rel="stylesheet">
+
+  <!-- Leaflet CSS -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+  <!-- Leaflet Fullscreen CSS -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet.fullscreen/1.5.0/leaflet.fullscreen.css" />
+
+  <!-- Template Main CSS File -->
+  <link href="static/css/style.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/css/select2.min.css">
+  <link rel="stylesheet" href="./static/plugins/fontawesome-free/css/all.min.css">
+  <link rel="stylesheet" href="./static/dist/css/adminlte.min.css">
+
+  <style>
+    /* Estilos do Spinner */
+    .spinner {
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      text-align: center;
+      z-index: 9999;
+    }
+    .spinner-animation {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      border: 4px solid #333;
+      border-top: 4px solid transparent;
+      border-bottom: 4px solid transparent;
+      animation: spin 1s linear infinite;
+    }
+    @keyframes spin {
+      0% {
+        transform: rotate(0deg);
+      }
+      100% {
+        transform: rotate(360deg);
+      }
+    }
+    .spinner-text {
+      margin-top: 10px;
+      color: #333;
+    }
+    #header {
+      width: 100%;
+      height: 60px;
+      background-color: #f0f0f0;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    }
+    #map {
+      height: calc(100vh - 120px); /* Altura ajustada para ocupar todo o espaço */
+      border: 1px solid #ccc; /* Borda fina */
+    }
+    #client-list {
+      height: calc(100vh - 120px); /* Altura ajustada para ocupar todo o espaço */
+      overflow-y: auto; /* Barra de rolagem vertical */
+      border: 1px solid #ccc; /* Borda fina */
+    }
+    .client-item {
+      padding: 10px;
+      border-bottom: 1px solid #ccc;
+      cursor: pointer;
+    }
+    .client-item:hover {
+      background-color: #f0f0f0;
+    }
+    .search-box {
+      padding: 10px;
+      border-bottom: 1px solid #ccc;
+    }
+    .search-box input {
+      width: 50%;
+      padding: 5px;
+      box-sizing: border-box;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+    }
+  </style>
+
+  <!-- Leaflet JS -->
+  <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+  <!-- Leaflet Fullscreen JS -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet.fullscreen/1.5.0/Control.FullScreen.min.js"></script>
+</head>
+
+<body>
+  <header id="header" class="fixed-top d-flex align-items-center">
+    <div class="container d-flex align-items-center">
+      <div class="logo me-auto">
+        <h1>DataCore - Psiu Express</h1>
+      </div>
+      <nav id="navbar" class="navbar order-last order-lg-0">
+        <i class="bi bi-list mobile-nav-toggle"></i>
+      </nav><!-- .navbar -->
+      <div class="header-social-links d-flex align-items-center">
+        <a href="#" class="twitter"><i class="bi bi-twitter"></i></a>
+        <a href="#" class="facebook"><i class="bi bi-facebook"></i></a>
+        <a href="#" class="instagram"><i class="bi bi-instagram"></i></a>
+        <a href="#" class="linkedin"><i class="bi bi-linkedin"></i></a>
+      </div>
+    </div>
+  </header>
+
+  <div class="container-fluid mt-5 pt-4">
+<!--    <div class="row">-->
+<!--      <center>-->
+<!--        <div class="col-12 search-box mt-3 text-center">-->
+<!--          <input type="text" id="search-input" placeholder="Pesquisar Cliente...">-->
+<!--        </div>-->
+
+<!--      </center>-->
+<!--    </div>-->
+
+    <div class="row mt-3 mb-3">
+  <div class="col-3 text-left">
+    <input type="text" id="search-input" class="form-control" placeholder="Pesquisar Cliente..." style="margin-left: 3px;">
+  </div>
+  <div class="col-9 text-right">
+    <a href="/filtrar-analise-cliente" class="btn btn-info" style="margin-right: 3px;">
+      <i class="fa fa-arrow-left"></i> Voltar
+    </a>
+  </div>
+</div>
+
+
+    <div class="row">
+      <div class="col-md-3" id="client-list">
+        <!-- Lista de Clientes Próximos -->
+      </div>
+      <div class="col-md-9">
+        <div id="map"></div>
+      </div>
+    </div>
+    <div class="spinner">
+      <div class="spinner-animation"></div>
+      <div class="spinner-text">Aplicando filtros e Carregando Conjunto de dados...</div>
+    </div>
+  </div>
+
+
+
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+  <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet.fullscreen/1.5.0/Control.FullScreen.min.js"></script>
+
+
+<style>
+    .client-green {
+        background-color: #d4edda;
+        border-color: #c3e6cb;
+    }
+    .client-red {
+        background-color: #f8d7da;
+        border-color: #f5c6cb;
+    }
+</style>
+
+<script>
+    // Função para obter a localização atual e abrir o Google Maps com a rota
+    function getCurrentLocationAndOpenRoute(clienteLat, clienteLng) {
+        if (navigator.geolocation) {
+            navigator.geolocation.getCurrentPosition(function (position) {
+                var lat = position.coords.latitude;
+                var lng = position.coords.longitude;
+                var url = `https://www.google.com/maps/dir/${lat},${lng}/${clienteLat},${clienteLng}`;
+                window.open(url, '_blank');
+            }, function (error) {
+                console.error('Erro ao obter localização:', error);
+                alert('Erro ao obter localização. Verifique se a localização está habilitada no seu navegador.');
+            });
+        } else {
+            alert('Geolocalização não é suportada pelo seu navegador.');
+        }
+    }
+
+    $(document).ready(function () {
+        // Função para recuperar o token
+        function getToken() {
+            return localStorage.getItem('authToken');
+        }
+        var token = getToken();
+        console.log(token); // Verificar se o token está sendo recuperado corretamente
+
+        // Função para obter dados do cliente principal
+        function fetchMainClientData(clienteId) {
+            return $.ajax({
+                url: `/buscaclientesporID/${clienteId}`,
+                method: 'GET',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'token': token
+                }
+            });
+        }
+
+        // Função para obter dados dos clientes próximos
+        function fetchNearbyClientsData(clienteId) {
+            return $.ajax({
+                url: `/buscaclientesproximos/${clienteId}`,
+                method: 'GET',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'token': token
+                }
+            });
+        }
+
+        // Função para formatar números como moeda Real
+        function formatCurrency(value) {
+            return value.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+        }
+
+        // Função principal para carregar dados e adicionar ao mapa
+        function loadData(clienteId) {
+            $.when(fetchMainClientData(clienteId), fetchNearbyClientsData(clienteId))
+                .done(function (mainClientResponse, nearbyClientsResponse) {
+                    // Dados do cliente principal
+                    var mainClient = mainClientResponse[0];
+
+                    // Dados dos clientes próximos
+                    var clientes = nearbyClientsResponse[0];
+                    var raio = clientes.length > 0 ? clientes[0].raio : 50; // Valor padrão se 'raio' não estiver disponível
+
+                    // Inicialização do mapa centrado na localização do cliente principal
+                    var map = L.map('map', {
+                        fullscreenControl: true, // Adiciona o controle de tela cheia
+                        fullscreenControlOptions: {
+                            position: 'topleft' // Define a posição do controle de tela cheia
+                        }
+                    }).setView([mainClient.d_latitude, mainClient.d_longitude], 10);
+
+                    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                        maxZoom: 18,
+                    }).addTo(map);
+
+                    // Ícone customizado para o cliente principal
+                    var greenIcon = L.icon({
+                        iconUrl: 'static/icons-png/lider.png',
+                        shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.7/images/marker-shadow.png',
+                        iconSize: [96, 96],
+                        iconAnchor: [12, 41],
+                        popupAnchor: [1, -34],
+                        shadowSize: [41, 41]
+                    });
+
+                    // Ícone customizado para os pontos chave (prédio)
+                    var truckIcon = L.icon({
+                        iconUrl: 'static/icons-png/icons8-organização-48.png',
+                        shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.7/images/marker-shadow.png',
+                        iconSize: [25, 41],
+                        iconAnchor: [12, 41],
+                        popupAnchor: [1, -34],
+                        shadowSize: [41, 41]
+                    });
+
+                    // Ícone personalizado para clientes próximos com geoviabilidade verde
+                    var greenNearbyIcon = L.icon({
+                        iconUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-green.png',
+                        shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.7/images/marker-shadow.png',
+                        iconSize: [25, 41],
+                        iconAnchor: [12, 41],
+                        popupAnchor: [1, -34],
+                        shadowSize: [41, 41]
+                    });
+
+                    // Ícone personalizado para clientes próximos com geoviabilidade vermelha
+                    var redNearbyIcon = L.icon({
+                        iconUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-red.png',
+                        shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.7/images/marker-shadow.png',
+                        iconSize: [25, 41],
+                        iconAnchor: [12, 41],
+                        popupAnchor: [1, -34],
+                        shadowSize: [41, 41]
+                    });
+
+                    // Adicionar marcador do cliente principal
+                    var mainClientMarker = L.marker([mainClient.d_latitude, mainClient.d_longitude], { icon: greenIcon }).addTo(map);
+                    mainClientMarker.bindPopup(
+                        `<b>${mainClient.d_fantasia}</b><br>${mainClient.d_cidade}<br>` +
+                        `Distância até o CD mais próximo: ${raio.toFixed(2)} km`
+                    );
+
+                    // Adicionar círculo em volta do cliente principal com base no valor do raio
+                    var circle = L.circle([mainClient.d_latitude, mainClient.d_longitude], {
+                        color: 'green',
+                        fillColor: '#30f000',
+                        fillOpacity: 0.2,
+                        radius: raio * 1000 // Convertendo km para metros
+                    }).addTo(map);
+
+                    // Adicionar pontos chave
+                    var keyPoints = [
+                        { lat: -2.669792948234241, lng: -44.28876912765947, name: "FABRICA MATRIZ", city: "SÃO LUIS" },
+                        { lat: -3.6618810306995755, lng: -45.380608335632566, name: "CD SANTA INÊS", city: "SANTA INÊS" },
+                        { lat: -5.292037616822134, lng: -44.49188268714008, name: "CD PRESIDENTE DUTRA", city: "PRESIDENTE DUTRA" }
+                    ];
+
+                    keyPoints.forEach(function (point) {
+                        var marker = L.marker([point.lat, point.lng], { icon: truckIcon }).addTo(map);
+                        marker.bindPopup(`<b>${point.name}</b><br>${point.city}`);
+                    });
+
+                    // Ordenar os clientes colocando os com geoviabilidade verde no topo
+                    clientes.sort(function (a, b) {
+                        return a.geoviabilidade === "verde" ? -1 : 1;
+                    });
+
+                    var clientListHtml = '';
+                    var markers = {};
+                    clientes.forEach(function (cliente) {
+                        // Evitar duplicação do marcador do cliente principal
+                        if (cliente.d_cod_cliente !== mainClient.d_cod_cliente) {
+                            // Escolher o ícone com base na geoviabilidade
+                            var icon = cliente.geoviabilidade === "verde" ? greenNearbyIcon : redNearbyIcon;
+
+                            var marker = L.marker([cliente.d_latitude, cliente.d_longitude], { icon: icon }).addTo(map);
+                            marker.bindPopup(
+                                `<b>${cliente.d_fantasia}</b><br>${cliente.d_cidade}<br>Distância do Líder: ${cliente.m_distancia.toFixed(2)} km<br>` +
+                                `Distância do CD: ${cliente.distancia_centro_mais_proximo.toFixed(2)} km<br>` +
+                                `Receita Média: ${formatCurrency(cliente.m_receita)}<br>Volume Médio: ${cliente.m_volume}<br>` +
+                                `<div class="btn-group" role="group">` +
+                                `<a href="https://www.example.com/${cliente.d_cod_cliente}" class="btn btn-info" target="_blank" style="color: white; margin: 2px;"><i class="fa fa-info"></i> Informações</a>` +
+                                `<button class="btn btn-success" onclick="getCurrentLocationAndOpenRoute(${cliente.d_latitude}, ${cliente.d_longitude})" style="color: white; margin: 2px;"><i class="fa fa-route"></i> Rota</button>` +
+                                `</div>`
+                            );
+
+                            // Guardar referência do marcador
+                            markers[cliente.d_cod_cliente] = marker;
+
+                            // Adicionar a classe de cor com base na geoviabilidade
+                            var clientClass = cliente.geoviabilidade === "verde" ? 'client-green' : 'client-red';
+                            clientListHtml += `<div class="client-item ${clientClass}" data-cliente-id="${cliente.d_cod_cliente}">
+                                <strong>${cliente.d_cod_cliente} - ${cliente.d_fantasia}</strong><br>
+                                ${cliente.d_cidade}
+                            </div>`;
+                        }
+                    });
+
+                    // Adicionar a lista de clientes na div client-list
+                    $('#client-list').html(clientListHtml);
+
+                    // Adicionar evento de clique aos itens da lista de clientes
+                    $('.client-item').on('click', function () {
+                        var clienteId = $(this).data('cliente-id');
+                        var marker = markers[clienteId];
+                        map.setView(marker.getLatLng(), 15);
+                        marker.openPopup();
+                    });
+
+                    // Filtragem da lista de clientes
+                    $('#search-input').on('input', function () {
+                        var searchTerm = $(this).val().toLowerCase();
+                        $('.client-item').each(function () {
+                            var clientName = $(this).text().toLowerCase();
+                            $(this).toggle(clientName.indexOf(searchTerm) !== -1);
+                        });
+                    });
+
+                    $('.spinner').hide(); // Esconde o spinner após o carregamento
+                })
+                .fail(function (error) {
+                    console.error('Erro:', error);
+                    $('.spinner').hide(); // Esconde o spinner mesmo em caso de erro
+                });
+        }
+
+        var urlParams = new URLSearchParams(window.location.search);
+        var clienteId = urlParams.get('cliente');
+
+        if (clienteId) {
+            loadData(clienteId);
+        } else {
+            alert("Código do cliente não fornecido.");
+            $('.spinner').hide();
+        }
+    });
+</script>
+
+<style>
+    .client-green {
+        background-color: #d4edda;
+        border-color: #c3e6cb;
+    }
+    .client-red {
+        background-color: #f8d7da;
+        border-color: #f5c6cb;
+    }
+</style>
+
+</body>
+</html>

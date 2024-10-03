@@ -41,6 +41,12 @@
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/css/select2.min.css">
 
+      <!-- Font Awesome Icons -->
+  <link rel="stylesheet" href="./static/plugins/fontawesome-free/css/all.min.css">
+
+      <!-- Theme style -->
+  <link rel="stylesheet" href="./static/dist/css/adminlte.min.css">
+
  <style>
   /* Estilos do Spinner */
   .spinner {
@@ -77,6 +83,12 @@
     margin-top: 10px;
     color: #333;
   }
+#header {
+        width: 100%;
+        height: 80px;
+        background-color: #f0f0f0;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    }
 </style>
 
 </head>
@@ -84,12 +96,12 @@
  <header id="header" class="fixed-top d-flex align-items-center">
     <div class="container d-flex align-items-center">
       <div class="logo me-auto">
-        <h1><a href="index.html">Psiu - DataCore</a></h1>
+        <h1><a href="/filtrar-analise-mp">Psiu - DataCore</a></h1>
       </div>
       <nav id="navbar" class="navbar order-last order-lg-0">
         <i class="bi bi-list mobile-nav-toggle"></i>
       </nav><!-- .navbar -->
- <div class="header-social-links d-flex align-items-center">
+    <div class="header-social-links d-flex align-items-center">
         <a href="#" class="twitter"><i class="bi bi-twitter"></i></a>
         <a href="#" class="facebook"><i class="bi bi-facebook"></i></a>
         <a href="#" class="instagram"><i class="bi bi-instagram"></i></a>
@@ -97,109 +109,234 @@
       </div>
     </div>
   </header>
-    <div class="container mt-5 pt-4"> <!-- Adicionando padding top (pt-4) para empurrar o conteúdo para baixo -->
+
+
+ <section>
+         <div class="container mt-5 pt-4">
+              <div class="col-12 col-sm-6 col-md-6">
+                <div class="info-box">
+                  <span class="info-box-icon bg-info elevation-1"><i class="fa fa-chart-line"></i></span>
+
+                  <div class="info-box-content">
+                    <span class="info-box-text">Variação do custo médio de matéria prima</span>
+                    <span class="info-box-number">
+    <!--                  10-->
+    <!--                  <small>%</small>-->
+                    </span>
+                  </div>
+                  <!-- /.info-box-content -->
+                </div>
+                <!-- /.info-box -->
+              </div>
+         </div>
+
+ </section>
+
+
+    <div class="container mt-3 pt-2 col-md-10"> <!-- Adicionando padding top (pt-4) para empurrar o conteúdo para baixo -->
         <canvas id="myChart" width="400" height="200"></canvas>
         <div class="spinner">Loading...</div>
     </div>
 
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-<script>
-    $(document).ready(function () {
-        // Função para recuperar o token
-    function getToken() {
-       return localStorage.getItem('authToken');
-    }
-    var token = getToken();
-        // Get parameters from URL
-        const params = new URLSearchParams(window.location.search);
-        const products = params.get('products');
-        const startDate = params.get('startDate');
-        const endDate = params.get('endDate');
+ <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.0.0"></script>
 
-        // Perform AJAX request with parameters
-        $.ajax({
-            url: 'busca-custos-mp/',
-            type: 'GET', // Assuming the endpoint is a GET request
-            headers: {
-                'accept': 'application/json',
-                'token': token
-            },
-            data: {
-                codigos_produto: products,
-                data_inicial: startDate,
-                data_final: endDate
-            },
-            beforeSend: function () {
-                $('.spinner').show(); // Show spinner before the AJAX request
-            },
-            success: function (data) {
-                $('.spinner').hide(); // Hide spinner after receiving data
+ <script>
+        $(document).ready(function () {
+            // Função para recuperar o token
+            function getToken() {
+                return localStorage.getItem('authToken');
+            }
+            var token = getToken();
+            // Get parameters from URL
+            const params = new URLSearchParams(window.location.search);
+            const products = params.get('products');
+            const startDate = params.get('startDate');
+            const endDate = params.get('endDate');
 
-                // Process API data
-                var datasets = {};
-                data.forEach(function (item) {
-                    var subgrupo = item.SUBGRUPO_DESCRICAO;
-                    if (!datasets[subgrupo]) {
-                        datasets[subgrupo] = {
-                            label: subgrupo,
-                            data: [],
-                            fill: false,
-                            borderColor: '#' + (Math.random().toString(16) + '000000').substring(2, 8),
-                            tension: 0.1
-                        };
-                    }
-                    datasets[subgrupo].data.push(item.CUSTO_MEDIO);
-                });
+            // Perform AJAX request with parameters
+            $.ajax({
+                url: 'busca-custos-mp/',
+                type: 'GET', // Assuming the endpoint is a GET request
+                headers: {
+                    'accept': 'application/json',
+                    'token': token
+                },
+                data: {
+                    codigos_produto: products,
+                    data_inicial: startDate,
+                    data_final: endDate
+                },
+                beforeSend: function () {
+                    $('.spinner').show(); // Show spinner before the AJAX request
+                },
+                success: function (data) {
+                    $('.spinner').hide(); // Hide spinner after receiving data
 
-                // Build chart with processed data
-                var labels = data.map(function (item) { return item.DATA_MOV; });
-                var ctx = document.getElementById('myChart').getContext('2d');
-                var myChart = new Chart(ctx, {
-                    type: 'line',
-                    data: {
-                        labels: labels,
-                        datasets: Object.values(datasets)
-                    },
-                    options: {
-                        scales: {
-        y: {
-            beginAtZero: true
-        }
-    },
-    plugins: {
-        tooltip: {
-            callbacks: {
-                label: function(context) {
-                    var label = context.dataset.label || '';
-                    if (label) {
-                        label += ': ';
-                    }
-                    if (context.parsed.y !== null) {
-                        label += new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(context.parsed.y);
-                    }
-                    return label;
+                    // Process API data
+                    var datasets = {};
+                    data.forEach(function (item) {
+                        var subgrupo = item.SUBGRUPO_DESCRICAO;
+                        if (!datasets[subgrupo]) {
+                            datasets[subgrupo] = {
+                                label: subgrupo,
+                                data: [],
+                                fill: false,
+                                borderColor: '#' + (Math.random().toString(16) + '000000').substring(2, 8),
+                                tension: 0.3
+                            };
+                        }
+                        datasets[subgrupo].data.push(item.CUSTO_MEDIO);
+                    });
+
+                    // Build chart with processed data
+                    var labels = data.map(function (item) { return item.DATA_MOV; });
+                    var ctx = document.getElementById('myChart').getContext('2d');
+                    var myChart = new Chart(ctx, {
+                        type: 'line',
+                        data: {
+                            labels: labels,
+                            datasets: Object.values(datasets)
+                        },
+                        options: {
+                            scales: {
+                                y: {
+                                    beginAtZero: true
+                                }
+                            },
+                            plugins: {
+                                tooltip: {
+                                    callbacks: {
+                                        label: function(context) {
+                                            var label = context.dataset.label || '';
+                                            if (label) {
+                                                label += ': ';
+                                            }
+                                            if (context.parsed.y !== null) {
+                                                label += new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(context.parsed.y);
+                                            }
+                                            return label;
+                                        }
+                                    }
+                                },
+                                datalabels: {
+                                    anchor: 'end',
+                                    align: 'top',
+                                    formatter: function(value, context) {
+                                        return new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(value);
+                                    }
+                                }
+                            }
+                        },
+                        plugins: [ChartDataLabels] // Register the plugin here
+                    });
+                },
+                error: function (xhr, status, error) {
+                    $('.spinner').hide(); // Hide spinner in case of error
+                    console.error(xhr.responseText); // Print error to console
                 }
-            }
-        },
-        datalabels: {
-            anchor: 'end',
-            align: 'top',
-            formatter: function(value, context) {
-                return new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(value);
-            }
-        }
-    }
-                    }
-                });
-            },
-            error: function (xhr, status, error) {
-                $('.spinner').hide(); // Hide spinner in case of error
-                console.error(xhr.responseText); // Print error to console
-            }
+            });
         });
-    });
-</script>
+    </script>
+
+
+<!--<script>-->
+<!--    $(document).ready(function () {-->
+<!--        // Função para recuperar o token-->
+<!--    function getToken() {-->
+<!--       return localStorage.getItem('authToken');-->
+<!--    }-->
+<!--    var token = getToken();-->
+<!--        // Get parameters from URL-->
+<!--        const params = new URLSearchParams(window.location.search);-->
+<!--        const products = params.get('products');-->
+<!--        const startDate = params.get('startDate');-->
+<!--        const endDate = params.get('endDate');-->
+
+<!--        // Perform AJAX request with parameters-->
+<!--        $.ajax({-->
+<!--            url: 'busca-custos-mp/',-->
+<!--            type: 'GET', // Assuming the endpoint is a GET request-->
+<!--            headers: {-->
+<!--                'accept': 'application/json',-->
+<!--                'token': token-->
+<!--            },-->
+<!--            data: {-->
+<!--                codigos_produto: products,-->
+<!--                data_inicial: startDate,-->
+<!--                data_final: endDate-->
+<!--            },-->
+<!--            beforeSend: function () {-->
+<!--                $('.spinner').show(); // Show spinner before the AJAX request-->
+<!--            },-->
+<!--            success: function (data) {-->
+<!--                $('.spinner').hide(); // Hide spinner after receiving data-->
+
+<!--                // Process API data-->
+<!--                var datasets = {};-->
+<!--                data.forEach(function (item) {-->
+<!--                    var subgrupo = item.SUBGRUPO_DESCRICAO;-->
+<!--                    if (!datasets[subgrupo]) {-->
+<!--                        datasets[subgrupo] = {-->
+<!--                            label: subgrupo,-->
+<!--                            data: [],-->
+<!--                            fill: false,-->
+<!--                            borderColor: '#' + (Math.random().toString(16) + '000000').substring(2, 8),-->
+<!--                            tension: 0.3-->
+<!--                        };-->
+<!--                    }-->
+<!--                    datasets[subgrupo].data.push(item.CUSTO_MEDIO);-->
+<!--                });-->
+
+<!--                // Build chart with processed data-->
+<!--                var labels = data.map(function (item) { return item.DATA_MOV; });-->
+<!--                var ctx = document.getElementById('myChart').getContext('2d');-->
+<!--                var myChart = new Chart(ctx, {-->
+<!--                    type: 'line',-->
+<!--                    data: {-->
+<!--                        labels: labels,-->
+<!--                        datasets: Object.values(datasets)-->
+<!--                    },-->
+<!--                    options: {-->
+<!--                        scales: {-->
+<!--        y: {-->
+<!--            beginAtZero: true-->
+<!--        }-->
+<!--    },-->
+<!--    plugins: {-->
+<!--        tooltip: {-->
+<!--            callbacks: {-->
+<!--                label: function(context) {-->
+<!--                    var label = context.dataset.label || '';-->
+<!--                    if (label) {-->
+<!--                        label += ': ';-->
+<!--                    }-->
+<!--                    if (context.parsed.y !== null) {-->
+<!--                        label += new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(context.parsed.y);-->
+<!--                    }-->
+<!--                    return label;-->
+<!--                }-->
+<!--            }-->
+<!--        },-->
+<!--        datalabels: {-->
+<!--            anchor: 'end',-->
+<!--            align: 'top',-->
+<!--            formatter: function(value, context) {-->
+<!--                return new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(value);-->
+<!--            }-->
+<!--        }-->
+<!--    }-->
+<!--                    }-->
+<!--                });-->
+<!--            },-->
+<!--            error: function (xhr, status, error) {-->
+<!--                $('.spinner').hide(); // Hide spinner in case of error-->
+<!--                console.error(xhr.responseText); // Print error to console-->
+<!--            }-->
+<!--        });-->
+<!--    });-->
+<!--</script>-->
 
 </body>
 </html>

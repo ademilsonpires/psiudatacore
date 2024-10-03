@@ -1,12 +1,14 @@
 import sqlite3
 
 class Usuario:
-    def __init__(self, id=None, nome_usuario=None, senha=None, token=None, status=None):
+    def __init__(self, id=None, nome_usuario=None, senha=None, token=None, status=None, tipo=None, user_saib=None):
         self.id = id
         self.nome_usuario = nome_usuario
         self.senha = senha
         self.token = token
         self.status = status
+        self.tipo = tipo
+        self.user_saib = user_saib
 
 class UsuarioDB:
     def __init__(self, db_file):
@@ -20,13 +22,15 @@ class UsuarioDB:
                             nome_usuario TEXT NOT NULL,
                             senha TEXT NOT NULL,
                             token TEXT,
-                            status TEXT
+                            status TEXT,
+                            tipo TEXT,
+                            user_saib INTEGER
                           )''')
         self.conn.commit()
 
     def insert_usuario(self, usuario):
-        self.c.execute('''INSERT INTO usuarios (nome_usuario, senha, token, status)
-                           VALUES (?, ?, ?, ?)''', (usuario.nome_usuario, usuario.senha, usuario.token, usuario.status))
+        self.c.execute('''INSERT INTO usuarios (nome_usuario, senha, token, status, tipo, user_saib)
+                           VALUES (?, ?, ?, ?, ?, ?)''', (usuario.nome_usuario, usuario.senha, usuario.token, usuario.status, usuario.tipo, usuario.user_saib))
         self.conn.commit()
         return self.c.lastrowid
 
@@ -45,13 +49,14 @@ class UsuarioDB:
         return self.c.fetchone()
 
     def update_usuario(self, usuario):
-        self.c.execute('''UPDATE usuarios SET nome_usuario = ?, senha = ?, token = ?, status = ? 
-                           WHERE id = ?''', (usuario.nome_usuario, usuario.senha, usuario.token, usuario.status, usuario.id))
+        self.c.execute('''UPDATE usuarios SET nome_usuario = ?, senha = ?, token = ?, status = ? , tipo = ?, user_saib = ?
+                           WHERE id = ?''', (usuario.nome_usuario, usuario.senha, usuario.token, usuario.status, usuario.user_saib, usuario.id))
         self.conn.commit()
 
     def update_usuario_campo(self, usuario_id, campo, valor):
-        self.c.execute(f'''UPDATE usuarios SET {campo} = ? WHERE id = ?''', (valor,) + (usuario_id,))
+        self.c.execute(f'''UPDATE usuarios SET {campo} = ? WHERE id = ?''', (valor, usuario_id))
         self.conn.commit()
+        return self.c.rowcount  # Retorna o número de linhas afetadas
 
     def delete_usuario(self, usuario_id):
         self.c.execute('''DELETE FROM usuarios WHERE id = ?''', (usuario_id,))
