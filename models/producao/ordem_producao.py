@@ -200,7 +200,7 @@ def busca_ordem_id(id_ordem=None):
 
         # Consulta SQL com filtro opcional
         sql_query = """
-            SELECT
+SELECT
     OP.ORPR_EMP_ID                          EMPRESA,
     OP.ORPR_NR_ORDEM                        NR_ORDEM,
     OP.ORPR_DTA_PROGRAMADA                  DATA_PROGRAMADA,
@@ -220,8 +220,8 @@ def busca_ordem_id(id_ordem=None):
     OPP.ORPR_QTDE                           QTDE_PROGRAMADA,
     OPP.ORPR_PROV_SERIE                     SERIE,
     U.USR_NOME                              USUARIO_CADASTRO,
-    DAP.QTDE_PRODUZIDA,
-    DAP.GAP
+    NVL(DAP.QTDE_PRODUZIDA, 0)              QTDE_PRODUZIDA,
+    NVL(DAP.GAP, 0)                         GAP
 FROM 
     ORDEM_DE_PRODUCAO OP,
     ORDEM_PRODUCAO_P OPP,
@@ -257,10 +257,11 @@ WHERE
     AND OP.ORPR_EMP_ID = 4
     AND OP.ORPR_DTA_PROGRAMADA >= TO_DATE(sysdate, 'DD/MM/YYYY')
     AND OP.ORPR_STATUS = 'A'
-    ---AND OP.ORPR_NR_ORDEM = 29965 clausula para testes
-    AND DAP.EMPRESA_PRODUCAO = OP.ORPR_EMP_ID
-    AND DAP.ORDEM_PRODUCAO = OP.ORPR_NR_ORDEM
-    AND DAP.LINHA_PRODUCAO = OP.ORPR_LIPR_ID
+    ---AND OP.ORPR_NR_ORDEM = 29965 --cláusula para testes 
+    AND OP.ORPR_EMP_ID = DAP.EMPRESA_PRODUCAO(+)
+    AND OP.ORPR_NR_ORDEM = DAP.ORDEM_PRODUCAO(+)
+    AND OP.ORPR_LIPR_ID = DAP.LINHA_PRODUCAO(+)
+
 
         """
 
@@ -706,4 +707,4 @@ def calcular_gap_produto_ordem_id(id_produto=None, id_linha=None, quantidade_pro
 # resultado = calcular_gap_produto_ordem_id(id_produto=50, id_linha=4, quantidade_produzida=550)
 # print(resultado)
 # Saída: {"gap": 50}
-# print(busca_ordem_id(29965))
+#print(busca_ordem_id(29960))

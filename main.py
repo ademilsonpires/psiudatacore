@@ -23,6 +23,8 @@ from models.producao.ordem_producao import *
 from models.producao.apontamento_producao import *
 from models.logistica.transferencias import *
 from models.suprimentos.ordens_de_compra import *
+from models.aceite_web.aceite_ordem_producao_web import *
+from models.aceite_web.qrcode_aceite_web import *
 
 from fastapi import Depends, Header, Body
 
@@ -675,13 +677,43 @@ async def endpoint_inserir_apontamento_producao(
         raise HTTPException(status_code=401, detail="Acesso negado. Token inválido ou usuário inativo")
 
     # Criar uma instância do objeto ApontamentoDB
-    apontamento_db = ApontamentoDB(conn)
+    apontamento_db = ApontamentoDB()
 
     # Inserir os dados no banco de dados
     resultado = apontamento_db.inserir_apontamento(apontamento)
 
     return resultado
 
+
+@app.get("/listar_apontamentos_da_ordem_de_producao/", tags=["Produção"])
+async def listar_apontamentos_da_ordem_de_producao(token: str = Header(...), id_ordem: int = None):
+    # Verificar se o token está presente no cabeçalho da requisição
+    if not token:
+        raise HTTPException(status_code=401, detail="Token de autenticação ausente")
+
+    # Verificar se o token é válido consultando o banco de dados
+    db_usuario = UsuarioDB('bd.sqlite3')
+    usuario_stored = db_usuario.get_usuario_by_token(token)
+    db_usuario.close()
+
+    if not usuario_stored:
+        raise HTTPException(status_code=401, detail="Acesso negado. Token inválido ou usuário inativo")
+
+    # Conectar ao banco de dados
+    db_apontamento = ApontamentoDB()
+
+    # Verificar se id_ordem foi passado como parâmetro
+    if id_ordem is None:
+        raise HTTPException(status_code=400, detail="ID da ordem de produção não fornecido")
+
+    # Chamar a função listar_apontamentos para buscar os dados
+    resultado = db_apontamento.listar_apontamentos(id_ordem)
+
+     # Retornar o resultado
+    if resultado["status"] == "error":
+        raise HTTPException(status_code=500, detail=resultado["message"])
+
+    return resultado["data"]
 
 
 @app.post("/inserir-check-mp/", tags=["Produção"])
@@ -699,7 +731,7 @@ async def inserir_check_mp(
     if not usuario_stored:
         raise HTTPException(status_code=401, detail="Acesso negado. Token inválido ou usuário inativo")
 
-    check_mp_db = CheckMPDB(conn)
+    check_mp_db = CheckMPDB()
     resultado = check_mp_db.inserir_check_mp(check_mp)
 
     return resultado
@@ -807,3 +839,102 @@ async def grava_aprovacao_aprovador(
 
     # Se houver algum erro ou a ordem ainda não estiver totalmente aprovada
     raise HTTPException(status_code=400, detail=resultado["message"])
+
+
+
+# Endpoint para inserir dados na tabela aceite_ordem_pro_web
+@app.post("/inserir-aceite-web-ordem-pro/", tags=["Aceite Web Ordem Produção"])
+async def inserir_aceite_ordem_pro(
+    aceite_ordem: AceiteOrdemPro,  # Dados recebidos do cliente
+    token: str = Header(...)       # Token de autenticação
+):
+    # Verificação do token (a função de verificação já existe no projeto)
+    if not token:
+        raise HTTPException(status_code=401, detail="Token de autenticação ausente")
+
+    # Verifique o token (função de verificação já existente)
+    db = UsuarioDB('bd.sqlite3')
+    usuario_stored = db.get_usuario_by_token(token)
+    db.close()
+
+    if not usuario_stored:
+        raise HTTPException(status_code=401, detail="Acesso negado. Token inválido ou usuário inativo")
+
+    # Inserir os dados na tabela usando a função criada anteriormente
+    aceite_ordem_db = AceiteOrdemProDB()
+    resultado = aceite_ordem_db.inserir_aceite_ordem_pro(aceite_ordem)
+
+    # Retorna o resultado da operação
+    return resultado
+
+
+@app.post("/gerar-tag-qrcode/", tags=["Aceite Web Ordem Produção"])
+async def gerar_tag_qrcode(
+    tag: QRTagAceite,  # Dados da tag recebidos
+    token: str = Header(...)  # Token de autenticação
+):
+    # Verificação do token (a função de verificação já existe no projeto)
+    if not token:
+        raise HTTPException(status_code=401, detail="Token de autenticação ausente")
+
+    # Verifique o token (função de verificação já existente)
+    db = UsuarioDB('bd.sqlite3')
+    usuario_stored = db.get_usuario_by_token(token)
+    db.close()
+
+    if not usuario_stored:
+        raise HTTPException(status_code=401, detail="Acesso negado. Token inválido ou usuário inativo")
+
+    # Inserir os dados e gerar o QR code
+    tag_db = QRTagAceiteDB()
+    resultado = tag_db.inserir_tag_aceite(tag)
+
+    return resultado
+
+
+@app.put("/atualizar-situacao/{tag_id}/", tags=["Aceite Web Ordem Produção"])
+async def atualizar_situacao(
+    tag_id: int,
+    nova_situacao: str,
+    token: str = Header(...)  # Token de autenticação
+):
+    # Verificação do token (a função de verificação já existe no projeto)
+    if not token:
+        raise HTTPException(status_code=401, detail="Token de autenticação ausente")
+
+    # Verifique o token (função de verificação já existente)
+    db = UsuarioDB('bd.sqlite3')
+    usuario_stored = db.get_usuario_by_token(token)
+    db.close()
+
+    if not usuario_stored:
+        raise HTTPException(status_code=401, detail="Acesso negado. Token inválido ou usuário inativo")
+
+    # Atualizar a situação
+    tag_db = QRTagAceiteDB()
+    resultado = tag_db.atualizar_situacao(tag_id, nova_situacao)
+
+    return resultado
+
+@app.get("/listar-tags/", tags=["Aceite Web Ordem Produção"])
+async def listar_tags(
+    tag_id: Optional[int] = Query(None, description="ID da tag para filtro opcional"),
+    token: str = Header(...)  # Token de autenticação
+):
+    # Verificação do token (a função de verificação já existe no projeto)
+    if not token:
+        raise HTTPException(status_code=401, detail="Token de autenticação ausente")
+
+    # Verifique o token (função de verificação já existente)
+    db = UsuarioDB('bd.sqlite3')
+    usuario_stored = db.get_usuario_by_token(token)
+    db.close()
+
+    if not usuario_stored:
+        raise HTTPException(status_code=401, detail="Acesso negado. Token inválido ou usuário inativo")
+
+    # Listar os dados das tags
+    tag_db = QRTagAceiteDB()
+    resultado = tag_db.listar_tags(tag_id)
+
+    return resultado
